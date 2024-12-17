@@ -27,7 +27,7 @@
       darwinConfigurations."fourier-default" = nix-darwin.lib.darwinSystem {
         pkgs = import nixpkgs {
           localSystem.system = "aarch64-darwin";
-          overlays = [ ];
+          overlays = [ nix-darwin.overlays.default ];
         };
         modules = with self.darwinModules; [
           { nixpkgs.hostPlatform = "aarch64-darwin"; }
@@ -40,7 +40,7 @@
       darwinConfigurations."excelsior" = nix-darwin.lib.darwinSystem {
         pkgs = import nixpkgs {
           localSystem.system = "aarch64-darwin";
-          overlays = [ ];
+          overlays = [ nix-darwin.overlays.default ];
         };
         modules = with self.darwinModules; [
           hardware.m2-macbook-air

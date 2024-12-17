@@ -1,4 +1,11 @@
-{ self, ... }: {
+{ self, pkgs, ... }: {
+  environment.systemPackages = with pkgs; [
+    darwin-option
+    darwin-rebuild
+    darwin-version
+    darwin-uninstaller
+  ];
+
   nix.optimise.automatic = true;
   nix.settings = {
     sandbox = true;
