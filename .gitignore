@@ -1,0 +1,6 @@
+# Editors
+.vscode
+
+# Nix
+/result
+/result-man
