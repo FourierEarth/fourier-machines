@@ -43,6 +43,11 @@
         modules = [ fourier-default-configuration ];
       };
 
+      # Jacob Birkett (SWE)
+      darwinConfigurations."excelsior" = nix-darwin.lib.darwinSystem {
+        modules = [ fourier-default-configuration ];
+      };
+
       # $ nix fmt
       formatter =
         eachSystem (system: nixpkgs.legacyPackages.${system}.nixfmt-classic);
