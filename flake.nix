@@ -14,38 +14,32 @@
     let
       inherit (nixpkgs) lib;
       eachSystem = lib.genAttrs (import systems);
-
-      fourier-default-configuration = { pkgs, ... }: {
-        # List packages installed in system profile. To search by name, run:
-        # $ nix-env -qaP | grep wget
-        environment.systemPackages = [ pkgs.vim ];
-
-        # Necessary for using flakes on this system.
-        nix.settings.experimental-features = "nix-command flakes";
-
-        # Enable alternative shell support in nix-darwin.
-        # programs.fish.enable = true;
-
-        # Set Git commit hash for darwin-version.
-        system.configurationRevision = self.rev or self.dirtyRev or null;
-
-        # Used for backwards compatibility, please read the changelog before changing.
-        # $ darwin-rebuild changelog
-        system.stateVersion = 5;
-
-        # The platform the configuration will be used on.
-        nixpkgs.hostPlatform = "aarch64-darwin";
-      };
     in {
+      darwinModules = {
+        default-darwin = ./darwin-modules/default-darwin.nix;
+        fourier-developer = ./darwin-modules/fourier-developer.nix;
+
+        hardware.m2-macbook-air = ./darwin-modules/hardware/m2-macbook-air.nix;
+      };
+
       # Build this generic configuration using:
       # $ darwin-rebuild build --flake .#fourier-default
       darwinConfigurations."fourier-default" = nix-darwin.lib.darwinSystem {
-        modules = [ fourier-default-configuration ];
+        modules = with self.darwinModules; [
+          { nixpkgs.hostPlatform = "aarch64-darwin"; }
+          default-darwin
+        ];
+        specialArgs = { inherit self inputs; };
       };
 
       # Jacob Birkett (SWE)
       darwinConfigurations."excelsior" = nix-darwin.lib.darwinSystem {
-        modules = [ fourier-default-configuration ];
+        modules = with self.darwinModules; [
+          hardware.m2-macbook-air
+          default-darwin
+          fourier-developer
+        ];
+        specialArgs = { inherit self inputs; };
       };
 
       # $ nix fmt
