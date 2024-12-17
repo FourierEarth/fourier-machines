@@ -25,6 +25,10 @@
       # Build this generic configuration using:
       # $ darwin-rebuild build --flake .#fourier-default
       darwinConfigurations."fourier-default" = nix-darwin.lib.darwinSystem {
+        pkgs = import nixpkgs {
+          localSystem.system = "aarch64-darwin";
+          overlays = [ ];
+        };
         modules = with self.darwinModules; [
           { nixpkgs.hostPlatform = "aarch64-darwin"; }
           default-darwin
@@ -34,6 +38,10 @@
 
       # Jacob Birkett (SWE)
       darwinConfigurations."excelsior" = nix-darwin.lib.darwinSystem {
+        pkgs = import nixpkgs {
+          localSystem.system = "aarch64-darwin";
+          overlays = [ ];
+        };
         modules = with self.darwinModules; [
           hardware.m2-macbook-air
           default-darwin
