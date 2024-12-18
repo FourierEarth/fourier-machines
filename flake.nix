@@ -40,9 +40,14 @@
         # If you added a module to `modules` which requires a package,
         # list the overlay which provides said package here.
         overlays ? [ ],
-          #
-        }:
-        nix-darwin.lib.darwinSystem {
+        # Other attributes merged with the argument set of `nix-darwin.lib.darwinSystem`
+        # which will pass them to `nix-darwin/eval-config.nix` and then `lib.evalModules`.
+        ... }@args:
+        let
+          ownArgs =
+            builtins.attrNames (builtins.functionArgs mkFourierDarwinSystem);
+          passthruArgs = removeAttrs args ownArgs;
+        in nix-darwin.lib.darwinSystem {
           pkgs = import nixpkgs {
             localSystem.system = hostPlatform;
             overlays = [ nix-darwin.overlays.default ] ++ overlays;
@@ -50,7 +55,7 @@
           modules = [ hardwareModule ]
             ++ (with self.darwinModules; [ default-darwin ]) ++ modules;
           specialArgs = { inherit self inputs; };
-        };
+        } // passthruArgs;
     in {
       darwinModules = importNixFlat ./darwin-modules // {
         hardware = importNixFlat ./darwin-modules/hardware;
