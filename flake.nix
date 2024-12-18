@@ -29,10 +29,7 @@
           localSystem.system = "aarch64-darwin";
           overlays = [ nix-darwin.overlays.default ];
         };
-        modules = with self.darwinModules; [
-          { nixpkgs.hostPlatform = "aarch64-darwin"; }
-          default-darwin
-        ];
+        modules = with self.darwinModules; [ default-darwin ];
         specialArgs = { inherit self inputs; };
       };
 
