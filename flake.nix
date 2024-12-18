@@ -14,12 +14,19 @@
     let
       inherit (nixpkgs) lib;
       eachSystem = lib.genAttrs (import systems);
-    in {
-      darwinModules = {
-        default-darwin = ./darwin-modules/default-darwin.nix;
-        fourier-developer = ./darwin-modules/fourier-developer.nix;
 
-        hardware.m2-macbook-air = ./darwin-modules/hardware/m2-macbook-air.nix;
+      importNixFlat = dir:
+        lib.pipe (builtins.readDir dir) [
+          (lib.filterAttrs
+            (name: kind: kind == "regular" && lib.hasSuffix ".nix" name))
+          (lib.mapAttrs' (name: _: {
+            name = lib.removeSuffix ".nix" name;
+            value = import "${dir}/${name}";
+          }))
+        ];
+    in {
+      darwinModules = importNixFlat ./darwin-modules // {
+        hardware = importNixFlat ./darwin-modules/hardware;
       };
 
       # Build this generic configuration using:
