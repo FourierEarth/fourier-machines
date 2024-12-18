@@ -24,6 +24,33 @@
             value = import "${dir}/${name}";
           }))
         ];
+
+      mkFourierDarwinSystem = hostname:
+        {
+        # This is named so because it will turn up as `nixpkgs.hostPlatform` in the module system.
+        # Here it directly affects `_module.args.pkgs.stdenv.hostPlatform`,
+        # since `_module.args.pkgs` is explicitly defined.
+        hostPlatform ? "aarch64-darwin",
+        # By default this is an empty set. You can use any module (set or function),
+        # this is not treated specially but is explicitly named to encourage usage.
+        hardwareModule ? { },
+        # Any other modules specific to this host.
+        modules ? [ ],
+        # Any extra `pkgs` overlays specific to this host's configurations.
+        # If you added a module to `modules` which requires a package,
+        # list the overlay which provides said package here.
+        overlays ? [ ],
+          #
+        }:
+        nix-darwin.lib.darwinSystem {
+          pkgs = import nixpkgs {
+            localSystem.system = hostPlatform;
+            overlays = [ nix-darwin.overlays.default ] ++ overlays;
+          };
+          modules = [ hardwareModule ]
+            ++ (with self.darwinModules; [ default-darwin ]) ++ modules;
+          specialArgs = { inherit self inputs; };
+        };
     in {
       darwinModules = importNixFlat ./darwin-modules // {
         hardware = importNixFlat ./darwin-modules/hardware;
@@ -31,27 +58,12 @@
 
       # Build this generic configuration using:
       # $ darwin-rebuild build --flake .#fourier-default
-      darwinConfigurations."fourier-default" = nix-darwin.lib.darwinSystem {
-        pkgs = import nixpkgs {
-          localSystem.system = "aarch64-darwin";
-          overlays = [ nix-darwin.overlays.default ];
-        };
-        modules = with self.darwinModules; [ default-darwin ];
-        specialArgs = { inherit self inputs; };
-      };
+      darwinConfigurations."fourier-default" = mkFourierDarwinSystem null { };
 
       # Jacob Birkett (SWE)
-      darwinConfigurations."excelsior" = nix-darwin.lib.darwinSystem {
-        pkgs = import nixpkgs {
-          localSystem.system = "aarch64-darwin";
-          overlays = [ nix-darwin.overlays.default ];
-        };
-        modules = with self.darwinModules; [
-          hardware.m2-macbook-air
-          default-darwin
-          fourier-developer
-        ];
-        specialArgs = { inherit self inputs; };
+      darwinConfigurations."excelsior" = mkFourierDarwinSystem "excelsior" {
+        hardwareModule = self.darwinModules.hardware.m2-macbook-air;
+        modules = with self.darwinModules; [ default-darwin fourier-developer ];
       };
 
       # $ nix fmt
