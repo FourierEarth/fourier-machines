@@ -44,6 +44,10 @@
         # If you added a module to `modules` which requires a package,
         # list the overlay which provides said package here.
         overlays ? [ ],
+        # If you're doing something unorthodox (like cross-compiling a system configuration),
+        # pass (or override) arguments to the `import nixpkgs` with this set.
+        # These are received by `nixpkgs/top-level/impure.nix`.
+        nixpkgsArgs ? { },
         # Other attributes merged with the argument set of `nix-darwin.lib.darwinSystem`
         # which will pass them to `nix-darwin/eval-config.nix` and then `lib.evalModules`.
         ... }@args:
@@ -55,7 +59,7 @@
           pkgs = import nixpkgs {
             localSystem.system = hostPlatform;
             overlays = [ nix-darwin.overlays.default ] ++ overlays;
-          };
+          } // nixpkgsArgs;
           modules = [ hardwareModule ]
             ++ (with self.darwinModules; [ default-darwin ]) ++ modules;
           specialArgs = { inherit self inputs; } // specialArgs;
