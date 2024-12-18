@@ -36,6 +36,10 @@
         hardwareModule ? { },
         # Any other modules specific to this host.
         modules ? [ ],
+        # If you have any special attributes to pass to modules for a specific host,
+        # define them here. You can also override default `specialArgs`,
+        # which is usually silly save for special cases while debugging.
+        specialArgs ? { },
         # Any extra `pkgs` overlays specific to this host's configurations.
         # If you added a module to `modules` which requires a package,
         # list the overlay which provides said package here.
@@ -54,7 +58,7 @@
           };
           modules = [ hardwareModule ]
             ++ (with self.darwinModules; [ default-darwin ]) ++ modules;
-          specialArgs = { inherit self inputs; };
+          specialArgs = { inherit self inputs; } // specialArgs;
         } // passthruArgs;
     in {
       darwinModules = importNixFlat ./darwin-modules // {
