@@ -3,14 +3,18 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    systems.url = "github:nix-systems/default";
     nix-darwin = {
       url = "github:LnL7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = inputs@{ self, nixpkgs, nix-darwin }:
+  outputs = inputs@{ self, nixpkgs, systems, nix-darwin }:
     let
+      inherit (nixpkgs) lib;
+      eachSystem = lib.genAttrs (import systems);
+
       fourier-default-configuration = { pkgs, ... }: {
         # List packages installed in system profile. To search by name, run:
         # $ nix-env -qaP | grep wget
@@ -38,5 +42,9 @@
       darwinConfigurations."fourier-default" = nix-darwin.lib.darwinSystem {
         modules = [ fourier-default-configuration ];
       };
+
+      # $ nix fmt
+      formatter =
+        eachSystem (system: nixpkgs.legacyPackages.${system}.nixfmt-classic);
     };
 }
