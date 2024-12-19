@@ -76,7 +76,7 @@
       # Jacob Birkett (SWE)
       darwinConfigurations."excelsior" = mkFourierDarwinSystem "excelsior" {
         hardwareModule = self.darwinModules.hardware.m2-macbook-air;
-        modules = with self.darwinModules; [ default-darwin fourier-developer ];
+        modules = with self.darwinModules; [ fourier-developer ];
       };
 
       # $ nix fmt
