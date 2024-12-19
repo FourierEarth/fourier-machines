@@ -6,4 +6,6 @@
   };
 
   environment.systemPackages = with pkgs; [ vim ];
+
+  nix.linux-builder.enable = true;
 }
