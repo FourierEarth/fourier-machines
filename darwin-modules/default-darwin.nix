@@ -1,4 +1,4 @@
-{ self, pkgs, ... }: {
+{ self, lib, pkgs, ... }: {
   environment.systemPackages = with pkgs; [
     darwin-option
     darwin-rebuild
@@ -8,7 +8,7 @@
 
   nix.optimise.automatic = true;
   nix.settings = {
-    sandbox = true;
+    sandbox = lib.mkDefault true;
     experimental-features = "nix-command flakes";
   };
 

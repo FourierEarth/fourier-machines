@@ -1,6 +1,6 @@
-{
+{ lib, ... }: {
   nix.settings = {
-    cores = 6;
-    max-jobs = 4;
+    cores = lib.mkDefault 6;
+    max-jobs = lib.mkDefault 4;
   };
 }
