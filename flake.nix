@@ -25,6 +25,11 @@
           }))
         ];
 
+      fourierDefaultDarwinModules = with self.darwinModules; [
+        default-darwin
+        security.pam
+      ];
+
       mkFourierDarwinSystem = hostname:
         {
         # This is named so because it will turn up as `nixpkgs.hostPlatform` in the module system.
@@ -60,13 +65,14 @@
             localSystem.system = hostPlatform;
             overlays = [ nix-darwin.overlays.default ] ++ overlays;
           } // nixpkgsArgs;
-          modules = [ hardwareModule ]
-            ++ (with self.darwinModules; [ default-darwin ]) ++ modules;
+          modules = [ hardwareModule ] ++ fourierDefaultDarwinModules
+            ++ modules;
           specialArgs = { inherit self inputs; } // specialArgs;
         } // passthruArgs;
     in {
       darwinModules = importNixFlat ./darwin-modules // {
         hardware = importNixFlat ./darwin-modules/hardware;
+        security = importNixFlat ./darwin-modules/security;
       };
 
       # Build this generic configuration using:
